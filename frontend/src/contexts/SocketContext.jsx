@@ -4,7 +4,7 @@ import io from 'socket.io-client';
 const SocketContext = createContext();
 
 export function SocketProvider({ children }) {
-  const socket = io('http://localhost:5000');
+  const socket = io();
 
   useEffect(() => {
     socket.on('connect', () => {
