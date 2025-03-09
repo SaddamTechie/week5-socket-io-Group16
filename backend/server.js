@@ -5,6 +5,7 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 const connectDB = require('./config/db');
 const Message = require('./models/Message');
+const path = require('node:path')
 
 dotenv.config();
 
@@ -116,6 +117,15 @@ io.on('connection', (socket) => {
     console.log('User disconnected:', socket.id);
   });
 });
+
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static(path.join(__dirname, "../frontend/dist")));
+
+  app.get("*", (req, res) => {
+      res.sendFile(path.resolve(__dirname, "../frontend", "dist", "index.html"));
+  })
+}
+
 
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
