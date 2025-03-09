@@ -42,19 +42,21 @@ function UserList({ currentRoom, setCurrentRoom }) {
       </div>
 
       <div className="flex-1">
-        <h2 className="text-lg font-bold mb-2">Online Users</h2>
-        <ul className="space-y-2">
-          {users.map((user) => (
-            <li
-              key={user.id}
-              className="flex items-center gap-2 p-2 rounded hover:bg-gray-700"
-            >
-              <span className="w-2 h-2 rounded-full bg-green-500"></span>
-              <span>{user.username}</span>
-            </li>
-          ))}
-        </ul>
-      </div>
+  <h2 className="text-lg font-bold mb-2">Online Users</h2>
+  <div className="max-h-64 overflow-y-auto">
+    <ul className="space-y-2">
+      {users.map((user) => (
+        <li
+          key={user.id}
+          className="flex items-center gap-2 p-2 rounded hover:bg-gray-700"
+        >
+          <span className="w-2 h-2 rounded-full bg-green-500"></span>
+          <span>{user.username}</span>
+        </li>
+      ))}
+    </ul>
+  </div>
+</div>
     </div>
   );
 }

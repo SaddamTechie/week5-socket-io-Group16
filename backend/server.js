@@ -3,7 +3,9 @@ const http = require('http');
 const { Server } = require('socket.io');
 const cors = require('cors');
 const dotenv = require('dotenv');
-const path = require('node:path');
+const connectDB = require('./config/db');
+const Message = require('./models/Message');
+
 dotenv.config();
 
 const app = express();
@@ -17,14 +19,14 @@ const io = new Server(server, {
 
 app.use(cors());
 
-//const __dirname = path.resolve();
-// Store connected users
 const connectedUsers = new Map();
 
-// Function to log all connected users
 const logConnectedUsers = () => {
   console.log('Connected users:', Array.from(connectedUsers.values()));
 };
+
+// Connect to MongoDB
+connectDB();
 
 io.on('connection', (socket) => {
   console.log('A user connected:', socket.id);
@@ -34,16 +36,25 @@ io.on('connection', (socket) => {
     socket.join(room);
     socket.username = username;
     socket.room = room;
-    
-    // Broadcast updated user list and join message
-    io.to(room).emit('user_update', Array.from(connectedUsers.values()));
+
+    // Send join message only on initial join
     io.to(room).emit('receive_message', {
       username: 'System',
       message: `${username} has joined the chat`,
       timestamp: new Date()
     });
-    
-    // Log all connected users after join
+
+    io.to(room).emit('user_update', Array.from(connectedUsers.values()));
+    logConnectedUsers();
+  });
+
+  // New event for room switching without join message
+  socket.on('switch_room', ({ username, room }) => {
+    socket.leave(socket.room); // Leave previous room
+    socket.join(room);
+    socket.room = room;
+    connectedUsers.set(socket.id, { id: socket.id, username, online: true });
+    io.to(room).emit('user_update', Array.from(connectedUsers.values()));
     logConnectedUsers();
   });
 
@@ -54,14 +65,24 @@ io.on('connection', (socket) => {
         message,
         timestamp: new Date()
       };
-      // Log the message to console
+
+      // Save message to MongoDB if it's not a system message
+      if (socket.username !== 'System') {
+        const newMessage = new Message({
+          username: socket.username,
+          message: message,
+          room: socket.room,
+          timestamp: messageData.timestamp,
+        });
+        newMessage.save();
+      }
+
       console.log('Message sent:', {
         room: socket.room,
         username: socket.username,
         message: message,
         timestamp: messageData.timestamp.toISOString()
       });
-      
       io.to(socket.room).emit('receive_message', messageData);
     }
   });
@@ -75,20 +96,11 @@ io.on('connection', (socket) => {
         message: `${socket.username} has left the chat`,
         timestamp: new Date()
       });
-      // Log all connected users after disconnect
       logConnectedUsers();
     }
     console.log('User disconnected:', socket.id);
   });
 });
-
-if (process.env.NODE_ENV === "production") {
-    app.use(express.static(path.join(__dirname, "../frontend/dist")));
-
-    app.get("*", (req, res) => {
-        res.sendFile(path.resolve(__dirname, "../frontend", "dist", "index.html"));
-    })
-}
 
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {

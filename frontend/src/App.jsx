@@ -2,15 +2,20 @@ import { useState } from 'react';
 import ChatWindow from './components/ChatWindow';
 import MessageInput from './components/MessageInput';
 import UserList from './components/UserList';
-import { SocketProvider } from './contexts/SocketContext';
+import { SocketProvider, useSocket } from './contexts/SocketContext';
 
 function App() {
   const [currentRoom, setCurrentRoom] = useState(null);
   const [username, setUsername] = useState('');
+  const socket = useSocket();
 
   const handleJoin = (selectedUsername, room) => {
     setUsername(selectedUsername);
     setCurrentRoom(room);
+    // Emit initial join only once when user first enters
+    if (socket && !username) {
+      socket.emit('join', { username: selectedUsername, room });
+    }
   };
 
   if (!currentRoom || !username) {
@@ -26,7 +31,7 @@ function App() {
             className="w-full p-2 mb-4 border rounded"
           />
           <button
-            onClick={() => handleJoin(username, 'general')} // Default room
+            onClick={() => handleJoin(username, 'general')}
             className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
             disabled={!username.trim()}
           >
