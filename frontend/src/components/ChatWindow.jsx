@@ -36,6 +36,13 @@ function ChatWindow({ currentRoom, username }) {
         setHasJoinedGeneral(true);
       }
 
+      socket.on('load_messages', (messages) => {
+        setRoomMessages((prev) => ({
+          ...prev,
+          [currentRoom]: [...messages, ...(prev[currentRoom] || [])]
+        }));
+      });
+
       socket.on('receive_message', (data) => {
         console.log('Received message:', data);
         setRoomMessages((prev) => ({
@@ -47,10 +54,11 @@ function ChatWindow({ currentRoom, username }) {
       socket.on('system_notification', (data) => {
         toast(data.message);
       });
-      
 
       return () => {
         socket.off('receive_message');
+        socket.off('load_messages');
+        socket.off('system_notification');
       };
     }
   }, [currentRoom, username, socket]);
@@ -85,8 +93,6 @@ function ChatWindow({ currentRoom, username }) {
   };
 
   const currentMessages = roomMessages[currentRoom] || [];
- 
-
 
   return (
     <div className={`flex-1 overflow-y-auto p-4 ${getChatWindowStyle(currentRoom)}`}>

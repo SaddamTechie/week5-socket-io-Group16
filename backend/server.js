@@ -37,6 +37,17 @@ io.on('connection', (socket) => {
     socket.username = username;
     socket.room = room;
 
+    Message.find({ room: room })
+    .sort({ timestamp: 'asc' })
+    .then((messages) => {
+      // Send all messages to the client
+      socket.emit('load_messages', messages);
+    })
+    .catch((err) => {
+      console.error('Error fetching messages:', err);
+    });
+
+
     // Send join message only on initial join
     io.to(room).emit('system_notification', {
       username: 'System',
