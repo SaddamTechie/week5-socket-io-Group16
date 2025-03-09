@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useSocket } from '../contexts/SocketContext';
+import { ToastContainer, toast } from 'react-toastify';
 
 function ChatWindow({ currentRoom, username }) {
   const [roomMessages, setRoomMessages] = useState({});
@@ -43,6 +44,11 @@ function ChatWindow({ currentRoom, username }) {
         }));
       });
 
+      socket.on('system_notification', (data) => {
+        toast(data.message);
+      });
+      
+
       return () => {
         socket.off('receive_message');
       };
@@ -79,6 +85,8 @@ function ChatWindow({ currentRoom, username }) {
   };
 
   const currentMessages = roomMessages[currentRoom] || [];
+ 
+
 
   return (
     <div className={`flex-1 overflow-y-auto p-4 ${getChatWindowStyle(currentRoom)}`}>
@@ -109,6 +117,7 @@ function ChatWindow({ currentRoom, username }) {
           </div>
         </div>
       ))}
+      <ToastContainer />
     </div>
   );
 }

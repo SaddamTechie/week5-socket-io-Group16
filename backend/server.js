@@ -38,11 +38,12 @@ io.on('connection', (socket) => {
     socket.room = room;
 
     // Send join message only on initial join
-    io.to(room).emit('receive_message', {
+    io.to(room).emit('system_notification', {
       username: 'System',
       message: `${username} has joined the chat`,
       timestamp: new Date()
     });
+    
 
     io.to(room).emit('user_update', Array.from(connectedUsers.values()));
     logConnectedUsers();
@@ -91,11 +92,14 @@ io.on('connection', (socket) => {
     if (socket.username && socket.room) {
       connectedUsers.delete(socket.id);
       io.to(socket.room).emit('user_update', Array.from(connectedUsers.values()));
-      io.to(socket.room).emit('receive_message', {
+      
+      // Emit system notification for user leaving
+      io.to(socket.room).emit('system_notification', {
         username: 'System',
         message: `${socket.username} has left the chat`,
         timestamp: new Date()
       });
+      
       logConnectedUsers();
     }
     console.log('User disconnected:', socket.id);
