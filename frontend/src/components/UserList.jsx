@@ -3,7 +3,7 @@ import { useSocket } from '../contexts/SocketContext';
 
 
 function UserList({ currentRoom, setCurrentRoom }) {
-  const [rooms] = useState(['general', 'room1', 'room2']);
+  const [rooms] = useState(['general', 'technology', 'sports','politics','conspiracy theory']);
   const [users, setUsers] = useState([]);
   const socket = useSocket();
 
@@ -31,7 +31,7 @@ function UserList({ currentRoom, setCurrentRoom }) {
               <button
                 onClick={() => handleRoomChange(room)}
                 className={`w-full text-left p-2 rounded transition-colors ${
-                  currentRoom === room ? 'bg-gray-700' : 'hover:bg-gray-700'
+                  currentRoom === room ? 'bg-gray-500' : 'hover:bg-gray-700'
                 }`}
               >
                 # {room}

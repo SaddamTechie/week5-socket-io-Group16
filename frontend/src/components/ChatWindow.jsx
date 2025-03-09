@@ -67,9 +67,9 @@ function ChatWindow({ currentRoom, username }) {
     switch (room) {
       case 'general':
         return 'bg-white text-black';
-      case 'room1':
+      case 'technology':
         return 'bg-gradient-to-br from-blue-100 to-blue-300 text-black';
-      case 'room2':
+      case 'politics':
         return 'bg-gray-900 text-white';
       default:
         return 'bg-white text-black';
@@ -96,33 +96,45 @@ function ChatWindow({ currentRoom, username }) {
 
   return (
     <div className={`flex-1 overflow-y-auto p-4 ${getChatWindowStyle(currentRoom)}`}>
-      {currentMessages.map((msg, index) => (
-        <div
-          key={index}
-          className={`mb-4 flex ${
-            msg.username === 'System' ? 'justify-center' : 'justify-start'
-          }`}
-        >
-          <div
-            className={`max-w-[70%] p-3 relative ${getMessageBubbleStyle(
-              currentRoom,
-              msg.username === 'System'
-            )}`}
-          >
-            {msg.username !== 'System' && (
-              <span className="font-bold">{msg.username}: </span>
-            )}
-            <span>{msg.message}</span>
-            <span
-              className={`text-sm ml-2 block ${
-                currentRoom === 'room2' ? 'text-gray-300' : 'text-gray-500'
-              }`}
-            >
-              {new Date(msg.timestamp).toLocaleTimeString()}
-            </span>
-          </div>
-        </div>
-      ))}
+     {currentMessages.map((msg, index) => (
+ <div
+ key={index}
+ className={`mb-4 flex ${
+   msg.username === 'System' ? 'justify-center' : 'justify-start'
+ }`}
+>
+    <div className="mr-2">
+      {/* Profile Picture or Avatar */}
+      {msg.username !== 'System' && (
+        <img
+        src={msg.profilePicture || 'https://img.icons8.com/?size=100&id=84020&format=png&color=000000'}
+        alt="User Profile Picture"
+        className="w-8 h-8 rounded-full"
+      />
+      )}
+    </div>
+    <div
+      className={`max-w-[70%] p-3 relative ${getMessageBubbleStyle(
+        currentRoom,
+        msg.username === 'System'
+      )}`}
+    >
+      {msg.username !== 'System' && (
+        <span className="font-bold text-black">{msg.username}</span>
+      )}
+      <br />
+      <span>{msg.message}</span>
+      <span
+        className={`text-sm ml-2 block ${
+          currentRoom === 'room2' ? 'text-gray-300' : 'text-gray-500'
+        }`}
+      >
+        {new Date(msg.timestamp).toLocaleTimeString()}
+      </span>
+    </div>
+  </div>
+))}
+
       <ToastContainer />
     </div>
   );
